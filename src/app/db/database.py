@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
+from app.config.config import DATABASE_URL
 
-DB_URL="postgresql+psycopg://postgres:PostgreSQL@localhost:5432/fastapi"
-
-engine=create_engine(DB_URL)
+engine=create_engine(DATABASE_URL)
 
