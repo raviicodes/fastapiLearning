@@ -1,10 +1,9 @@
 from time import time
 from typing import Optional
-
-from fastapi import Body, FastAPI, HTTPException, Response, status
-import psycopg
+from fastapi import Body, FastAPI
 from pydantic import BaseModel
-
+from sqlalchemy import text
+from app.db.database import engine
 
 class Post(BaseModel):
     title:str
@@ -16,24 +15,14 @@ app=FastAPI()
 
 while True:
     try:
-        connection= psycopg.connect(
-        host='localhost',
-        dbname='fastapi',
-        user='postgres',
-        password='PostgreSQL',
-        port=5432
-
-         ) ;
-        cursor=connection.cursor();
-        print("connection succesful")
-        print("connection:",connection);
-        print("cursor:",cursor)  
-        break    
-
+        connection=engine.connect()
+        print("Database connection was successful")
+        break
     except Exception as error:
-        print("Failed to connect")
-        print("Error is: ",error)
+        print("Database connection failed")
+        print("Error:",error)
         time.sleep(2)
+    
 
 
 
@@ -45,6 +34,6 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    methodCall=cursor.execute("SELECT * FROM posts")
-    posts=methodCall.fetchall()
+    results=connection.execute(text("SELECT * FROM posts"))
+    posts=results.mappings().all()
     return {"data":posts}
