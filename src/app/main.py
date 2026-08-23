@@ -3,8 +3,9 @@ from typing import Optional
 from fastapi import Body, FastAPI
 from psycopg import connection
 from pydantic import BaseModel
-from sqlalchemy import text
+from sqlalchemy import insert, text
 from app.db.database import engine
+from app.db.models import posts
 
 class Post(BaseModel):
     title:str
@@ -29,6 +30,6 @@ def get_posts():
 @app.post("/posts")
 def create_post(post: Post):
     with engine.begin() as connection:
-        sql_statement=text("INSERT INTO posts (title, content, is_published) VALUES (:title, :content, :isPublished) RETURNING *")
+        sql_statement=insert(posts);
         result=connection.execute(sql_statement, post.model_dump())
         return {"data":result.mappings().first()}
